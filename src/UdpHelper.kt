@@ -3,6 +3,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.net.DatagramPacket
 import java.io.IOException
+import okio.Buffer
 
 public class UdpHelper {
     public val port: Int = 7777
@@ -12,7 +13,7 @@ public class UdpHelper {
     }
 
     public fun getIp(): ByteArray {
-        return InetAddress.getLocalHost().getAddress();
+        return InetAddress.getLocalHost().getAddress()
     }
 
     public fun broadcast(message: ByteArray) {
@@ -25,18 +26,16 @@ public class UdpHelper {
     }
 
     public fun receiveMessage(): Host {
-        val buffer = ByteArray(1024)
-        val packet = DatagramPacket(buffer, buffer.size)
+        val byteBuffer = ByteArray(1024)
+        val packet = DatagramPacket(byteBuffer, byteBuffer.size)
         socket.receive(packet)
-        val ip: Int = buffer.toInt(0 .. 3)
-        val fileCount: Int = buffer.toInt(4 .. 7)
-        val timeStamp = buffer.toLong(8 .. 15)
-        var len = 0
-        while (buffer[16 + len] != 0: Byte) {
-            len++
-        }
-        val name = String(buffer, 16, len)
+        val buffer = Buffer()
+        buffer.write(byteBuffer)
+
+        val ip = buffer.readInt()
+        val fileCount = buffer.readInt()
+        val timeStamp = buffer.readLong()
+        val name = buffer.readUtf8(buffer.indexOf(0))
         return Host(name, ip, fileCount, timeStamp)
     }
 }
-

@@ -25,6 +25,7 @@ public fun main(args: Array<String>) {
     val fileHelper = FileHelper(basedir)
     val udpHelper = UdpHelper()
 
+    // Announcer
     val announcer = Announcer(udpHelper, fileHelper, name)
     val announcerTimer = Timer()
     announcerTimer.schedule(object : TimerTask() {
@@ -60,25 +61,45 @@ public fun main(args: Array<String>) {
         val line = readLine()
         if (line == null) break
         val cmd = line.substringBefore(' ')
-        when (cmd) {
-            "hosts" -> {
-                for (host in hosts.values()) {
-                    println(host)
+        try {
+            when (cmd) {
+                "hosts" -> {
+                    for (host in hosts.values()) {
+                        println(host)
+                    }
+                    System.out.flush()
                 }
-                System.`out`.flush()
-            }
-            "list" -> {
-                val ip = line.substringAfter(' ')
-                try {
+                "list" -> {
+                    val ip = line.substringAfter(' ')
                     val files = tcpHelper.list(ip)
                     for (file in files) {
                         println(file)
                     }
                     System.out.flush()
-                } catch (e: Exception) {
-                    System.err.println(e.getMessage())
+                }
+                "get" -> {
+                    val ip = line.substringAfter(' ').substringBefore(' ')
+                    val fileName = line.substring(ip.length + 1).substringAfter(' ')
+                    tcpHelper.get(ip, fileName, fileHelper)
+                    println("Download complete")
+                    System.out.flush()
+                }
+                "put" -> {
+                    val ip = line.substringAfter(' ').substringBefore(' ')
+                    val fileName = line.substring(ip.length + 1).substringAfter(' ')
+                    tcpHelper.put(ip, fileName, fileHelper)
+                    println("Upload complete")
+                    System.out.flush()
+                }
+                else -> {
+                    System.out.flush()
+                    System.err.println("Invalid command")
                 }
             }
+        } catch(e: Exception) {
+            System.out.flush()
+            System.err.println(e.getMessage())
+            //e.printStackTrace()
         }
     }
     executor.shutdownNow()

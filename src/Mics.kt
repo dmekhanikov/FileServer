@@ -1,15 +1,4 @@
-fun ByteArray.toInt(range: IntRange): Int {
-    return toLong(range).toInt()
-}
-
-fun ByteArray.toLong(range: IntRange): Long {
-    var result: Long = 0
-    for (i in range) {
-        result = result shl 8
-        result += this[i]
-    }
-    return result
-}
+import okio.Buffer
 
 fun String.toLength(length: Int): String {
     val sb = StringBuilder()
@@ -33,6 +22,12 @@ fun Int.ipToString(): String {
     return "${(this shr 24) and mask}.${(this shr 16) and mask}.${(this shr 8) and mask}.${this and mask}"
 }
 
+fun ByteArray.toInt(): Int {
+    val buffer = Buffer()
+    buffer.write(this, 0, 4)
+    return buffer.readInt()
+}
+
 public class Host(public val name: String,
                   public val ip: Int,
                   public val fileCount: Int,
@@ -41,10 +36,12 @@ public class Host(public val name: String,
         return "| ${name.toLength(15)} | ${ip.ipToString().toLength(15)} | ${fileCount.toString().toLength(5)} | " +
                 "${timeStamp.toString().toLength(15)} |"
     }
+
 }
 
 public class FileInfo(val name: String, val md5: String) {
     override fun toString(): String {
         return "$md5: $name"
     }
+
 }

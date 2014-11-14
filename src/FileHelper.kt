@@ -4,7 +4,7 @@ import java.nio.file.Files
 import java.io.FileInputStream
 import java.security.DigestInputStream
 
-public class FileHelper(private val basedir: File) {
+public class FileHelper(public val basedir: File) {
     public fun getTimeStamp(): Long {
         return basedir.lastModified()
     }
@@ -34,7 +34,7 @@ public class FileHelper(private val basedir: File) {
         }
     }
 
-    public fun getFiles(): Array    <File> {
+    public fun getFiles(): Array<File> {
         return basedir.listFiles()
     }
 }
